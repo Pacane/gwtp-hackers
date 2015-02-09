@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module rename-to='AppModule'>
+    <!-- Inherit the core Web Toolkit stuff. -->
+    <inherits name='com.google.gwt.user.User' />
+    <inherits name='com.google.gwt.inject.Inject' />
+
+    <!-- Other module inherits -->
+    <inherits name='com.gwtplatform.mvp.MvpWithEntryPoint' />
+    <inherits name="com.google.gwt.query.Query"/>
+
+    <source path='client' />
+    <source path='shared' />
+
+    <set-configuration-property name="CssResource.style" value="pretty"/>
+    <set-configuration-property name="CssResource.obfuscationPrefix" value="empty"/>
+    <set-configuration-property name="CssResource.enableGss" value="true"/>
+    <set-configuration-property name="gin.ginjector.modules"
+                                value="com.arcbees.client.gin.ClientModule"/>
+</module>

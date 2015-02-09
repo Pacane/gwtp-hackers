@@ -1,0 +1,23 @@
+@provide 'theme';
+
+/**
+ * Colors
+ */
+
+@def C_PRIMARY                  eval("Colors.C_PRIMARY");
+@def C_BACKGROUND               eval("Colors.C_BACKGROUND");
+@def C_BACKGROUND_TRANSPARENT   eval("Colors.C_BACKGROUND_TRANSPARENT");
+@def C_TEXT                     eval("Colors.C_TEXT");
+@def C_TEXT_LIGHT               eval("Colors.C_TEXT_LIGHT");
+@def C_STATE_INFO               eval("Colors.C_STATE_INFO");
+@def C_STATE_ERROR              eval("Colors.C_STATE_ERROR");
+@def C_STATE_SUCCESS            eval("Colors.C_STATE_SUCCESS");
+
+/**
+ * Fonts
+ */
+
+@def F_PRIMARY                  eval("Fonts.F_PRIMARY");
+@def F_PRIMARY_BOLD             eval("Fonts.F_PRIMARY_BOLD");
+@def F_SECONDARY                eval("Fonts.F_SECONDARY");
+@def F_SECONDARY_BOLD           eval("Fonts.F_SECONDARY_BOLD");
