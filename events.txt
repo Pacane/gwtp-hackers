@@ -1,0 +1,332 @@
+Not too long ago, I started using GWT and GWTP and found it pretty hard to understand the event system in GWT and GWTP. 
+
+I can still barely find anything recent about this, so here I am writing a post that hopefully will help others. Disclaimer: There many ways to achieve what I do in this post, but this is the way I prefer.
+
+All right! Let's demonstrate how events and the event bus work by creating a CSI-Hacking Dashboard. You can get the code here : https://github.com/Pacane/gwtp-hackers
+
+We have <code>ComputerWidget</code>, a <code>HackerWidget</code> and a root Presenter that holds/creates other widgets. We also have a <code>ComputerHackedEvent</code> and <code>ComputerHackedHandler</code>. The event will be raised to signal the computers got hacked, and the handler code will be executed after that.
+
+Here's the classic implementation of a GWT event. Here our event will only carry the hacker's name.
+
+[sourcecode language="java"]
+public class ComputerHackedEvent extends GwtEvent<ComputerHackedEvent.ComputerHackedHandler> {
+    public interface ComputerHackedHandler extends EventHandler {
+        void onSystemHacked(ComputerHackedEvent event);
+    }
+
+    public static final Type<ComputerHackedHandler> TYPE = new Type<>();
+
+    private final String hackerName;
+
+    public ComputerHackedEvent(String hackerName) {
+        this.hackerName = hackerName;
+    }
+
+    public static void fire(String hackerName, HasHandlers source) {
+        source.fireEvent(new ComputerHackedEvent(hackerName));
+    }
+
+    public String getHackerName() {
+        return hackerName;
+    }
+
+    @Override
+    public Type<ComputerHackedHandler> getAssociatedType() {
+        return TYPE;
+    }
+
+    @Override
+    protected void dispatch(ComputerHackedHandler handler) {
+        handler.onSystemHacked(this);
+    }
+}
+[/sourcecode]
+
+I usually declare my handler as a nested interface in the event declaration, that's only a matter of preference though.
+
+So next we have to raise the event, that'll be done by our <code>HackerWidget</code>. A really simple way of becoming a computer hacker, is by adding a button to the screen and press it, right CSI?
+
+Here's the code of the view and the presenter.
+
+[sourcecode language="java"]
+public class HackerView extends ViewWithUiHandlers<HackerUiHandlers> implements HackerWidget.MyView {
+    interface Binder extends UiBinder<Widget, HackerView> {
+    }
+
+    @UiField
+    Button hackThePlanet;
+
+    @Inject
+    public HackerView(Binder binder) {
+        initWidget(binder.createAndBindUi(this));
+    }
+
+    @UiHandler("hackThePlanet")
+    public void initiateHacking(ClickEvent event) {
+        getUiHandlers().onInitiateHacking();
+    }
+}
+[/sourcecode]
+
+[sourcecode language="java"]
+public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHandlers {
+    public interface MyView extends View, HasUiHandlers<HackerUiHandlers> {
+    }
+
+    private final String hackerName;
+
+    @Inject
+    public HackerWidget(
+            EventBus eventBus,
+            MyView view,
+            @Assisted String hackerName) {
+        super(eventBus, view);
+
+        this.hackerName = hackerName;
+
+        getView().setUiHandlers(this);
+    }
+
+    @Override
+    public void onInitiateHacking() {
+        ComputerHackedEvent.fire(hackerName, this);
+    }
+}
+[/sourcecode]
+
+So we have a button, and when we click on it, it raises an event. There are a couple of ways available to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later, don't worry.
+
+Now we have to handle the event somewhere. We want to know when the computers get hacked, so we'll represent the computers with the <code>ComputerWidget</code>. Its role will be to print in the console when it gets hacked, and by which hacker. Here's the presenter code:
+
+[sourcecode language="java"]
+public class ComputerWidget extends PresenterWidget<MyView> implements ComputerHackedEvent.ComputerHackedHandler {
+    public interface MyView extends View {
+        void setComputerName(String computerName);
+    }
+
+    private final String computerName;
+
+    @Inject
+    public ComputerWidget(
+            EventBus eventBus,
+            MyView view,
+            @Assisted String computerName) {
+        super(eventBus, view);
+
+        this.computerName = computerName;
+
+        view.setComputerName(computerName);
+    }
+
+    @Override
+    protected void onBind() {
+        super.onBind();
+
+        addRegisteredHandler(ComputerHackedEvent.TYPE, this);
+    }
+
+    @Override
+    public void onSystemHacked(ComputerHackedEvent event) {
+        GQuery.console.log("I got hacked. (" + computerName + ") by " + event.getHackerName());
+    }
+}
+[/sourcecode]
+
+This way, when a hacker clicks on the "start hacking" button, all the computers that are listening to the event will print something. As you can see, the <code>ComputerWidget</code> registers itself as a handler for the <code>ComputerHackedEvent</code> through the <code>addRegisteredHandler</code> method. 
+
+This is a convenience method provided by GWTP. Using this method instead of registering directly on the EventBus will make the event registration part of GWTP's lifecycle and unbind the event handler when the presenter is unbound. That means that if the presenter is unbound and rebound, you'll have to re-register event handlers. This is why the onBind method is a good place to register handlers.
+
+Here's the code of the root presenter: 
+
+[sourcecode language="java"]
+public class RootPresenter extends Presenter<RootPresenter.MyView, RootPresenter.MyProxy> {
+    interface MyView extends View {
+    }
+
+    @ProxyStandard
+    @NameToken(NameTokens.home)
+    interface MyProxy extends ProxyPlace<RootPresenter> {
+    }
+
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> SLOT_COMPUTERS = new GwtEvent.Type<>();
+
+    @ContentSlot
+    public static final GwtEvent.Type<RevealContentHandler<?>> SLOT_HACKERS = new GwtEvent.Type<>();
+
+    private final ComputerWidgetFactory computerWidgetFactory;
+    private final HackerWidgetFactory hackerWidgetFactory;
+
+    @Inject
+    RootPresenter(
+            EventBus eventBus,
+            MyView view,
+            MyProxy proxy,
+            ComputerWidgetFactory computerWidgetFactory,
+            HackerWidgetFactory hackerWidgetFactory) {
+        super(eventBus, view, proxy, ApplicationPresenter.SLOT_SetMainContent);
+
+        this.computerWidgetFactory = computerWidgetFactory;
+        this.hackerWidgetFactory = hackerWidgetFactory;
+    }
+
+    @Override
+    protected void onBind() {
+        super.onBind();
+
+        HackerWidget zeroCool = hackerWidgetFactory.create("Zer0C00L");
+
+        addToSlot(SLOT_HACKERS, zeroCool);
+
+        ComputerWidget computerA = computerWidgetFactory.create("A");
+        ComputerWidget computerB = computerWidgetFactory.create("B");
+
+        addToSlot(SLOT_COMPUTERS, computerA);
+        addToSlot(SLOT_COMPUTERS, computerB);
+    }
+}
+[/sourcecode]
+
+We just create one hacker named Zer0C00L and 2 computers to hack. And now the view:
+
+[sourcecode language="java"]
+public class RootView extends ViewImpl implements RootPresenter.MyView {
+    interface Binder extends UiBinder<Widget, RootView> {
+    }
+
+    @UiField
+    HTMLPanel computers;
+    @UiField
+    HTMLPanel hackers;
+
+    @Inject
+    RootView(Binder uiBinder) {
+        initWidget(uiBinder.createAndBindUi(this));
+    }
+
+    @Override
+    public void addToSlot(Object slot, IsWidget content) {
+        super.addToSlot(slot, content);
+
+        if (slot == RootPresenter.SLOT_COMPUTERS) {
+            computers.add(content);
+        } else if (slot == RootPresenter.SLOT_HACKERS) {
+            hackers.add(content);
+        }
+    }
+
+    @Override
+    public void removeFromSlot(Object slot, IsWidget content) {
+        super.removeFromSlot(slot, content);
+
+        if (slot == RootPresenter.SLOT_COMPUTERS) {
+            computers.remove(content);
+        } else if (slot == RootPresenter.SLOT_HACKERS) {
+            hackers.remove(content);
+        }
+    }
+}
+[/sourcecode]
+
+Nice! When I click on "Hack the planet!" I see the following result in the Javascript console: 
+
+[sourcecode language="java"]
+I got hacked. (A) by Zer0C00L
+I got hacked. (B) by Zer0C00L
+[/sourcecode]
+
+I should start writing in l33tsp33k now.
+
+Now what if you remove from the DOM one of the ComputerWidgets by calling <code>removeFromSlot(SLOT_COMPUTERS, computerB);</code> and still try to hack the planet? Yes, if you read the output of the console you will see:
+
+[sourcecode language="java"]
+I got hacked. (A) by Zer0C00L
+I got hacked. (B) by Zer0C00L
+[/sourcecode]
+
+Wait... What? Yes, the handler for the computer B is still registered, the presenter wasn't unbound, it was only removed from the DOM. So what if we wanted the computer B to stop listening to the events when it's not present in the DOM? Well that's a job for <code>addVisibleHandler</code>. So instead of registering the handler with <code>addRegisteredHandler</code> we'll use <code>addVisibleHandler</code> that will handle this for us. So when a presenter is considered "not visible" in GWTP's lifecycle perspective (read: not visible as in "visible in the DOM"), the event will not each the handler. The new output should now be:
+
+[sourcecode language="java"]
+I got hacked. (A) by Zer0C00L
+[/sourcecode]
+
+There's still a problem though. What if there were too many computers for a single hacker? I think at some point we'll have to add someone to the team. Let's do it!
+
+[sourcecode language="java"]
+// in the RootPresenter's OnBind method
+HackerWidget acidBurn = hackerWidgetFactory.create("AcidBurn");
+addToSlot(SLOT_HACKERS, acidBurn);
+[sourcecode]
+
+You should see 2 buttons saying "Hack the planet!" and when you click on each, the output is: 
+
+[sourcecode language="java"]
+I got hacked. (A) by Zer0C00L
+I got hacked. (B) by Zer0C00L
+I got hacked. (A) by AcidBurn
+I got hacked. (B) by AcidBurn
+[sourcecode]
+
+All computers react to every hacker, that's not what we want. The way we registered the handlers earlier is the reason why. What's needed here, is to have the computers to react a specific hacker's <code>ComputerHackedEvent</code>. Given we can have a reference to the said hacker, it's pretty easy.
+
+We can either do it from the <code>RootPresenter</code> of from inside the <code>ComputerWidget</code>. In the first case, we have to remove the line <code>addRegisteredHandler(ComputerHackedEvent.TYPE, this);</code>, and add this one to the <code>RootPresenter</code>
+
+<code>getEventBus().addHandlerToSource(ComputerHackedEvent.TYPE, zeroCool, computerA);</code>
+
+For the second case (if the child widget has a reference to its parent): 
+<sourcecode language="java">
+// from RootPresenter
+ComputerWidget computerA = computerWidgetFactory.create("A", zeroCool);
+
+// in the child widget's onBind method
+@Override
+protected void onBind() {
+    super.onBind();
+
+    getEventBus().addHandlerToSource(ComputerHackedEvent.TYPE, hackerName, this);
+}
+<sourcecode>
+
+And finally, when you click on both buttons, the output should be:
+
+[sourcecode language="java"]
+I got hacked. (A) by Zer0C00L
+I got hacked. (B) by AcidBurn
+[/sourcecode]
+
+All right! We're ready to hack the planet! Are we?
+
+Remember when I said I would talk about the ways of firing events? Here I am. So if you are new to GWT and GWTP, you might have noticed that there are multiple methods available to fire events and register handlers.
+
+[sourcecode language="java"]
+// GWT
+eventBus.addHandler(eventType, handler)
+eventBus.addHandlerToSource(eventType, source, handler)
+
+eventBus.fireEvent(event)
+eventBus.fireEventFromSource(event, source)
+
+// GWTP
+presenterWidget.addHandler(eventType, handler) // deprecated
+presenterWidget.addRegisteredHandler(eventType, handler)
+presenterWidget.addVisibleHandler(eventType, handler)
+
+presenterWidget.fireEvent(event)
+[/sourcecode]
+
+Confused yet? I can say I was after seeing this. If you dig down you can see that a presenter widget gets an event bus injected and delegates most of its job to it. The only difference is that GWTP's manages the handler registrations with its lifecycle (ie: when a presenter gets unbound, the registered handlers get cleared). Also, if you dig for the <code>fireEvent</code> method, you'll see GWTP delegates to <code>eventBus.fireEventFromSource()</code>. You may want to call the original <code>fireEvent()</code> if you want to match the following case (taken from the javadoc) "Fires the event from no source. Only unfiltered handlers will receive it". Honestly, I've never faced that situation.
+
+Here's my cheat sheet of events in GWTP:
+
+- Do I need to fire an event globally on the event bus? (ie: everything registered to the event will handle it)
+Y: <code>presenterWidget.addHandler()</code> + <code>SomeEvent.fire()</code>
+N: Go next
+
+- Do I need to filter the handlers by visibility of the handler?
+Y: <code>presenterWidget.addVisibleHandler()</code> + <code>SomeEvent.fire()</code>
+N: Go next
+
+- Do I need specific handlers to handle events from a specific source?
+Y: <code>eventBus.addHandlerToSource()</code> + <code>SomeEvent.fire()</code>
+N: That's it, I usually don't need more questions. If you have another situation that doesn't fit, let me know!
+
