@@ -94,7 +94,7 @@ public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHan
 }
 [/sourcecode]
 
-So we have a button, and when we click on it, it raises an event. There are a couple of ways available to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later, don't worry.
+So we have a button, and when we click on it, it raises an event. There are a couple of ways available (est-ce que available est nécessaire ?) to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later, don't worry.
 
 Now we have to handle the event somewhere. We want to know when the computers get hacked, so we'll represent the computers with the <code>ComputerWidget</code>. Its role will be to print in the console when it gets hacked, and by which hacker. Here's the presenter code:
 
