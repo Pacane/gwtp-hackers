@@ -1,4 +1,4 @@
-Not too long ago, I started using GWT and GWTP and found it pretty hard to understand the event system in GWT and GWTP. 
+Not too long ago, I started using GWT and GWTP and found it pretty hard to understand the event system in GWT and GWTP. (j'enlèverais GWT et GWTP et remplacerais par: to understand their system)
 
 I can still barely find anything recent about this, so here I am writing a post that hopefully will help others. Disclaimer: There many ways to achieve what I do in this post, but this is the way I prefer.
 
@@ -94,7 +94,7 @@ public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHan
 }
 [/sourcecode]
 
-So we have a button, and when we click on it, it raises an event. There are a couple of ways available to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later, don't worry.
+So we have a button, and when we click on it, it raises an event. There are a couple of ways available to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later on, don't worry.
 
 Now we have to handle the event somewhere. We want to know when the computers get hacked, so we'll represent the computers with the <code>ComputerWidget</code>. Its role will be to print in the console when it gets hacked, and by which hacker. Here's the presenter code:
 
@@ -244,7 +244,7 @@ I got hacked. (A) by Zer0C00L
 I got hacked. (B) by Zer0C00L
 [/sourcecode]
 
-Wait... What? Yes, the handler for the computer B is still registered, the presenter wasn't unbound, it was only removed from the DOM. So what if we wanted the computer B to stop listening to the events when it's not present in the DOM? Well that's a job for <code>addVisibleHandler</code>. So instead of registering the handler with <code>addRegisteredHandler</code> we'll use <code>addVisibleHandler</code> that will handle this for us. So when a presenter is considered "not visible" in GWTP's lifecycle perspective (read: not visible as in "visible in the DOM"), the event will not each the handler. The new output should now be:
+Wait... What? Yes, the handler for the computer B is still registered, the presenter wasn't unbound, it was only removed from the DOM. So what if we wanted the computer B to stop listening to the events when it's not present in the DOM? Well that's a job for <code>addVisibleHandler</code>. So instead of registering the handler with <code>addRegisteredHandler</code> we'll use <code>addVisibleHandler</code> that will handle this for us. So when a presenter is considered "not visible" in GWTP's lifecycle perspective (read: not visible as in "visible in the DOM"), the event will not *reach ou un autre mot mais j'ai l'impression qu'il manque quelque chose* each the handler. The new output should now be:
 
 [sourcecode language="java"]
 I got hacked. (A) by Zer0C00L
@@ -296,7 +296,7 @@ I got hacked. (B) by AcidBurn
 
 All right! We're ready to hack the planet! Are we?
 
-Remember when I said I would talk about the ways of firing events? Here I am. So if you are new to GWT and GWTP, you might have noticed that there are multiple methods available to fire events and register handlers.
+Remember when I said I would talk about the ways of firing events? Here I am (pas sur du here I am). So if you are new to GWT and GWTP, you might have noticed that there are multiple methods available to fire events and register handlers.
 
 [sourcecode language="java"]
 // GWT
