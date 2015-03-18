@@ -256,7 +256,7 @@ There's still a problem though. What if there were too many computers for a sing
 // in the RootPresenter's OnBind method
 HackerWidget acidBurn = hackerWidgetFactory.create("AcidBurn");
 addToSlot(SLOT_HACKERS, acidBurn);
-[sourcecode]
+[/sourcecode]
 
 You should see 2 buttons saying "Hack the planet!" and when you click on each, the output is: 
 
