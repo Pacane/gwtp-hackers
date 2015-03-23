@@ -1,9 +1,9 @@
 package com.arcbees.client.application;
 
 import com.arcbees.client.application.home.RootModule;
-import com.arcbees.client.widgets.computer.ComputerWidgetFactory;
 import com.arcbees.client.widgets.computer.ComputerView;
 import com.arcbees.client.widgets.computer.ComputerWidget;
+import com.arcbees.client.widgets.computer.ComputerWidgetFactory;
 import com.arcbees.client.widgets.hacker.HackerView;
 import com.arcbees.client.widgets.hacker.HackerWidget;
 import com.arcbees.client.widgets.hacker.HackerWidgetFactory;

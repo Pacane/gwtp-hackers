@@ -18,7 +18,7 @@ public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHan
     private final String hackerName;
 
     @Inject
-    public HackerWidget(
+    HackerWidget(
             EventBus eventBus,
             MyView view,
             @Assisted String hackerName) {

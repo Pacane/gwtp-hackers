@@ -18,7 +18,7 @@ public class HackerView extends ViewWithUiHandlers<HackerUiHandlers> implements 
     Button hackThePlanet;
 
     @Inject
-    public HackerView(Binder binder) {
+    HackerView(Binder binder) {
         initWidget(binder.createAndBindUi(this));
     }
 

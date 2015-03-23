@@ -15,12 +15,11 @@ public class ApplicationPresenter extends Presenter<ApplicationPresenter.MyView,
     public interface MyView extends View {
     }
 
-    @ContentSlot
-    public static final Type<RevealContentHandler<?>> SLOT_SetMainContent = new Type<>();
-
     @ProxyStandard
     public interface MyProxy extends Proxy<ApplicationPresenter> {
     }
+    @ContentSlot
+    public static final Type<RevealContentHandler<?>> SLOT_SetMainContent = new Type<>();
 
     @Inject
     ApplicationPresenter(
