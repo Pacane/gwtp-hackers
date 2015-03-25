@@ -2,14 +2,19 @@ Not too long ago, I started using GWT and GWTP and found it pretty hard to under
 
 I can still barely find anything recent about this, so here I am writing a post that hopefully will help others. Disclaimer: There many ways to achieve what I do in this post, but this is the way I prefer.
 
-All right! Let's demonstrate how events and the event bus work by creating a CSI-Hacking Dashboard. You can get the code here : https://github.com/Pacane/gwtp-hackers
+<h2>Hack the planet!</h2>
+
+All right! Let's demonstrate how events and the event bus work by creating a CSI-Hacking Dashboard. You can get the code on <a title="Code example" href="https://github.com/Pacane/gwtp-hackers">GitHub</a>.
 
 We have <code>ComputerWidget</code>, a <code>HackerWidget</code> and a root Presenter that holds/creates other widgets. We also have a <code>ComputerHackedEvent</code> and <code>ComputerHackedHandler</code>. The event will be raised to signal the computers got hacked, and the handler code will be executed after that.
+
+<h2>The event</h2>
 
 Here's the classic implementation of a GWT event. Here our event will only carry the hacker's name.
 
 [sourcecode language="java"]
-public class ComputerHackedEvent extends GwtEvent<ComputerHackedEvent.ComputerHackedHandler> {
+public class ComputerHackedEvent
+        extends GwtEvent<ComputerHackedEvent.ComputerHackedHandler> {
     public interface ComputerHackedHandler extends EventHandler {
         void onSystemHacked(ComputerHackedEvent event);
     }
@@ -44,12 +49,15 @@ public class ComputerHackedEvent extends GwtEvent<ComputerHackedEvent.ComputerHa
 
 I usually declare my handler as a nested interface in the event declaration, that's only a matter of preference though.
 
+<h2>Raising the event</h2>
+
 So next we have to raise the event, that'll be done by our <code>HackerWidget</code>. A really simple way of becoming a computer hacker, is by adding a button to the screen and press it, right CSI?
 
 Here's the code of the view and the presenter.
 
 [sourcecode language="java"]
-public class HackerView extends ViewWithUiHandlers<HackerUiHandlers> implements HackerWidget.MyView {
+public class HackerView extends ViewWithUiHandlers<HackerUiHandlers>
+        implements HackerWidget.MyView {
     interface Binder extends UiBinder<Widget, HackerView> {
     }
 
@@ -57,7 +65,7 @@ public class HackerView extends ViewWithUiHandlers<HackerUiHandlers> implements 
     Button hackThePlanet;
 
     @Inject
-    public HackerView(Binder binder) {
+    HackerView(Binder binder) {
         initWidget(binder.createAndBindUi(this));
     }
 
@@ -69,14 +77,16 @@ public class HackerView extends ViewWithUiHandlers<HackerUiHandlers> implements 
 [/sourcecode]
 
 [sourcecode language="java"]
-public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHandlers {
+public class HackerWidget extends PresenterWidget<MyView> 
+    implements HackerUiHandlers {
+    
     public interface MyView extends View, HasUiHandlers<HackerUiHandlers> {
     }
 
     private final String hackerName;
 
     @Inject
-    public HackerWidget(
+    HackerWidget(
             EventBus eventBus,
             MyView view,
             @Assisted String hackerName) {
@@ -96,18 +106,23 @@ public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHan
 
 So we have a button, and when we click on it, it raises an event. There are a couple of ways to raise an event, but the one I usually use, is the static <code>fire()</code> method on the event. I'll talk about the other ways of firing event later on, don't worry.
 
+<h2>Can you handle it?</h2>
+
 Now we have to handle the event somewhere. We want to know when the computers get hacked, so we'll represent the computers with the <code>ComputerWidget</code>. Its role will be to print in the console when it gets hacked, and by which hacker. Here's the presenter code:
 
 [sourcecode language="java"]
-public class ComputerWidget extends PresenterWidget<MyView> implements ComputerHackedEvent.ComputerHackedHandler {
+public class ComputerWidget extends PresenterWidget<MyView>
+        implements ComputerHackedEvent.ComputerHackedHandler {
     public interface MyView extends View {
         void setComputerName(String computerName);
+
+        void displayStatus(String computerName, String hackerName);
     }
 
     private final String computerName;
 
     @Inject
-    public ComputerWidget(
+    ComputerWidget(
             EventBus eventBus,
             MyView view,
             @Assisted String computerName) {
@@ -119,17 +134,18 @@ public class ComputerWidget extends PresenterWidget<MyView> implements ComputerH
     }
 
     @Override
-    protected void onBind() {
-        super.onBind();
-
-        addRegisteredHandler(ComputerHackedEvent.TYPE, this);
+    public void onSystemHacked(ComputerHackedEvent event) {
+        getView().displayStatus(computerName, event.getHackerName());
     }
 
     @Override
-    public void onSystemHacked(ComputerHackedEvent event) {
-        GQuery.console.log("I got hacked. (" + computerName + ") by " + event.getHackerName());
+    protected void onBind() {
+        super.onBind();
+
+        getEventBus().addHandler(ComputerHackedEvent.TYPE, this);
     }
 }
+
 [/sourcecode]
 
 This way, when a hacker clicks on the "start hacking" button, all the computers that are listening to the event will print something. As you can see, the <code>ComputerWidget</code> registers itself as a handler for the <code>ComputerHackedEvent</code> through the <code>addRegisteredHandler</code> method. 
@@ -190,7 +206,8 @@ public class RootPresenter extends Presenter<RootPresenter.MyView, RootPresenter
 We just create one hacker named Zer0C00L and 2 computers to hack. And now the view:
 
 [sourcecode language="java"]
-public class RootView extends ViewImpl implements RootPresenter.MyView {
+public class RootView extends ViewImpl
+        implements RootPresenter.MyView {
     interface Binder extends UiBinder<Widget, RootView> {
     }
 
@@ -237,6 +254,8 @@ I got hacked. (B) by Zer0C00L
 
 I should start writing in l33tsp33k now.
 
+<h2>Reveal yourself!</h2>
+
 Now what if you remove from the DOM one of the ComputerWidgets by calling <code>removeFromSlot(SLOT_COMPUTERS, computerB);</code> and still try to hack the planet? Yes, if you read the output of the console you will see:
 
 [sourcecode language="java"]
@@ -249,6 +268,8 @@ Wait... What? Yes, the handler for the computer B is still registered, the prese
 [sourcecode language="java"]
 I got hacked. (A) by Zer0C00L
 [/sourcecode]
+
+<h2>Mind your own business</h2>
 
 There's still a problem though. What if there were too many computers for a single hacker? I think at some point we'll have to add someone to the team. Let's do it!
 
@@ -265,7 +286,7 @@ I got hacked. (A) by Zer0C00L
 I got hacked. (B) by Zer0C00L
 I got hacked. (A) by AcidBurn
 I got hacked. (B) by AcidBurn
-[sourcecode]
+[/sourcecode]
 
 All computers react to every hacker, that's not what we want. The way we registered the handlers earlier is the reason why. What's needed here, is to have the computers to react a specific hacker's <code>ComputerHackedEvent</code>. Given we can have a reference to the said hacker, it's pretty easy.
 
@@ -274,7 +295,7 @@ We can either do it from the <code>RootPresenter</code> of from inside the <code
 <code>getEventBus().addHandlerToSource(ComputerHackedEvent.TYPE, zeroCool, computerA);</code>
 
 For the second case (if the child widget has a reference to its parent): 
-<sourcecode language="java">
+[sourcecode language="java"]
 // from RootPresenter
 ComputerWidget computerA = computerWidgetFactory.create("A", zeroCool);
 
@@ -285,7 +306,7 @@ protected void onBind() {
 
     getEventBus().addHandlerToSource(ComputerHackedEvent.TYPE, hackerName, this);
 }
-<sourcecode>
+[/sourcecode]
 
 And finally, when you click on both buttons, the output should be:
 
