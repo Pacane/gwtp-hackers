@@ -57,6 +57,7 @@ public class RootPresenter extends Presenter<RootPresenter.MyView, RootPresenter
         HackerWidget zeroCool = hackerWidgetFactory.create("Zer0C00L");
         HackerWidget acidBurn = hackerWidgetFactory.create("AcidBurn");
 
+
         addToSlot(SLOT_HACKERS, zeroCool);
         addToSlot(SLOT_HACKERS, acidBurn);
 

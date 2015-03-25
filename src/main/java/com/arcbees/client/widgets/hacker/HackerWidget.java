@@ -11,7 +11,8 @@ import com.gwtplatform.mvp.client.View;
 
 import static com.arcbees.client.widgets.hacker.HackerWidget.MyView;
 
-public class HackerWidget extends PresenterWidget<MyView> implements HackerUiHandlers {
+public class HackerWidget extends PresenterWidget<MyView>
+        implements HackerUiHandlers {
     public interface MyView extends View, HasUiHandlers<HackerUiHandlers> {
     }
 
