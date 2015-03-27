@@ -9,7 +9,8 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.ViewImpl;
 
-public class ComputerView extends ViewImpl implements ComputerWidget.MyView {
+public class ComputerView extends ViewImpl
+        implements ComputerPresenter.MyView {
     interface Binder extends UiBinder<Widget, ComputerView> {
     }
 

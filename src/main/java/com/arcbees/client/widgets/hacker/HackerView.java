@@ -11,7 +11,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.gwtplatform.mvp.client.ViewWithUiHandlers;
 
 public class HackerView extends ViewWithUiHandlers<HackerUiHandlers>
-        implements HackerWidget.MyView {
+        implements HackerPresenter.MyView {
     interface Binder extends UiBinder<Widget, HackerView> {
     }
 

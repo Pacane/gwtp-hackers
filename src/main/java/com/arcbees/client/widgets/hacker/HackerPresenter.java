@@ -9,9 +9,9 @@ import com.gwtplatform.mvp.client.HasUiHandlers;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import com.gwtplatform.mvp.client.View;
 
-import static com.arcbees.client.widgets.hacker.HackerWidget.MyView;
+import static com.arcbees.client.widgets.hacker.HackerPresenter.MyView;
 
-public class HackerWidget extends PresenterWidget<MyView>
+public class HackerPresenter extends PresenterWidget<MyView>
         implements HackerUiHandlers {
     public interface MyView extends View, HasUiHandlers<HackerUiHandlers> {
     }
@@ -19,7 +19,7 @@ public class HackerWidget extends PresenterWidget<MyView>
     private final String hackerName;
 
     @Inject
-    HackerWidget(
+    HackerPresenter(
             EventBus eventBus,
             MyView view,
             @Assisted String hackerName) {

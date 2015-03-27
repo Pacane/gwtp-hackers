@@ -2,10 +2,11 @@ package com.arcbees.client.events;
 
 import com.google.gwt.event.shared.EventHandler;
 import com.google.gwt.event.shared.GwtEvent;
+
 import com.google.gwt.event.shared.HasHandlers;
 
 public class ComputerHackedEvent extends GwtEvent<ComputerHackedEvent.ComputerHackedHandler> {
-    public interface ComputerHackedHandler extends EventHandler {
+    public interface ComputerHackedHandler extends EventHandler, HasHandlers {
         void onSystemHacked(ComputerHackedEvent event);
     }
 

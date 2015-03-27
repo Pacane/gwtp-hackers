@@ -3,14 +3,15 @@ package com.arcbees.client.widgets.computer;
 import javax.inject.Inject;
 
 import com.arcbees.client.events.ComputerHackedEvent;
-import com.arcbees.client.widgets.computer.ComputerWidget.MyView;
+import com.arcbees.client.widgets.computer.ComputerPresenter.MyView;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.gwtplatform.mvp.client.PresenterWidget;
 import com.gwtplatform.mvp.client.View;
 
-public class ComputerWidget extends PresenterWidget<MyView>
-        implements ComputerHackedEvent.ComputerHackedHandler {
+public class ComputerPresenter extends PresenterWidget<MyView>
+        implements ComputerHackedEvent.ComputerHackedHandler, HasComputerHackedHandlers {
     public interface MyView extends View {
         void setComputerName(String computerName);
 
@@ -20,7 +21,7 @@ public class ComputerWidget extends PresenterWidget<MyView>
     private final String computerName;
 
     @Inject
-    ComputerWidget(
+    ComputerPresenter(
             EventBus eventBus,
             MyView view,
             @Assisted String computerName) {
@@ -37,9 +38,10 @@ public class ComputerWidget extends PresenterWidget<MyView>
     }
 
     @Override
-    protected void onBind() {
-        super.onBind();
+    public HandlerRegistration addComputerHackedHandler(ComputerHackedEvent.ComputerHackedHandler handler, Object source) {
+        HandlerRegistration hr = getEventBus().addHandlerToSource(ComputerHackedEvent.TYPE, source, handler);
+        registerHandler(hr);
 
-        getEventBus().addHandler(ComputerHackedEvent.TYPE, this);
+        return hr;
     }
 }
