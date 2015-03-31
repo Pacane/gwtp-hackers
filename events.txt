@@ -267,13 +267,13 @@ I got hacked. (A) by Zer0C00L
 I got hacked. (B) by Zer0C00L
 I got hacked. (A) by AcidBurn
 I got hacked. (B) by AcidBurn
-[sourcecode]
+[/sourcecode]
 
 All computers react to every hacker, that's not what we want. The way we registered the handlers earlier is the reason why. What's needed here, is to have the computers to react a specific hacker's <code>ComputerHackedEvent</code>. Given we can have a reference to the said hacker, it's pretty easy.
 
 To do so, the handler registration will be delegated to the concerned presenter. From the <code>RootPresenter</code> we'll delegate the task, but first let's create an interface :
 
-[sourcecode language="java]
+[sourcecode language="java"]
 import com.google.web.bindery.event.shared.HandlerRegistration;
 
 public interface HasComputerHackedHandlers {
@@ -335,5 +335,5 @@ Y: <code>presenterWidget.addVisibleHandler()</code> + <code>SomeEvent.fire()</co
 N: Go next
 
 - Do I need specific handlers to handle events from a specific source?
-Y: Create an interface called <code>HasXXXHandlers</code> and make your handling presenter implement it. GWTP gives `PresenterWidget` the capability to register handlers via <code>registerHandler()</code> and <code>registerVisibleHandler()</code>. And finally, fire the event with <code>SomeEvent.fire()</code>
+Y: Create an interface called <code>HasXXXHandlers</code> and make your handling presenter implement it. GWTP gives <code>PresenterWidget</code> the capability to register handlers via <code>registerHandler()</code> and <code>registerVisibleHandler()</code>. And finally, fire the event with <code>SomeEvent.fire()</code>
 N: That's it, I usually don't need more questions. If you have another situation that doesn't fit, let me know!

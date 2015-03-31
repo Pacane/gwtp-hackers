@@ -1,6 +1,6 @@
 package com.arcbees.client.gin;
 
-import com.arcbees.client.application.ApplicationModule;
+import com.arcbees.client.application.home.RootModule;
 import com.arcbees.client.place.NameTokens;
 import com.gwtplatform.mvp.client.annotations.DefaultPlace;
 import com.gwtplatform.mvp.client.annotations.ErrorPlace;
@@ -12,7 +12,7 @@ public class ClientModule extends AbstractPresenterModule {
     @Override
     protected void configure() {
         install(new DefaultModule());
-        install(new ApplicationModule());
+        install(new RootModule());
 
         // DefaultPlaceManager Places
         bindConstant().annotatedWith(DefaultPlace.class).to(NameTokens.home);

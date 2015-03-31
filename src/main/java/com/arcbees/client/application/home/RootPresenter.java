@@ -2,7 +2,6 @@ package com.arcbees.client.application.home;
 
 import javax.inject.Inject;
 
-import com.arcbees.client.application.ApplicationPresenter;
 import com.arcbees.client.place.NameTokens;
 import com.arcbees.client.widgets.computer.ComputerPresenter;
 import com.arcbees.client.widgets.computer.WidgetsFactory;
@@ -34,7 +33,7 @@ public class RootPresenter extends Presenter<RootPresenter.MyView, RootPresenter
             MyView view,
             MyProxy proxy,
             WidgetsFactory widgetsFactory) {
-        super(eventBus, view, proxy, ApplicationPresenter.SLOT_SetMainContent);
+        super(eventBus, view, proxy, RevealType.Root);
 
         this.widgetsFactory = widgetsFactory;
     }
