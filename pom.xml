@@ -13,10 +13,10 @@
     <properties>
         <!-- client -->
         <gwt.version>2.7.0</gwt.version>
-        <gwtp.version>1.4</gwtp.version>
+        <gwtp.version>1.5-SNAPSHOT</gwtp.version>
         <gin.version>2.1.2</gin.version>
         <gquery.version>1.4.2</gquery.version>
-        <gsss.version>1.0-SNAPSHOT</gsss.version>
+        <gsss.version>1.0</gsss.version>
 
         <!-- server -->
         <guice.version>3.0</guice.version>
@@ -28,7 +28,7 @@
         <!-- maven -->
         <gwt-maven-plugin.version>2.5.1</gwt-maven-plugin.version>
         <maven-surefire-plugin.version>2.6</maven-surefire-plugin.version>
-        <maven-compiler-plugin.version>2.3.2</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.3</maven-compiler-plugin.version>
         <maven-resources-plugin.version>2.5</maven-resources-plugin.version>
         <maven-processor-plugin.version>2.0.5</maven-processor-plugin.version>
         <maven-build-helper-plugin.version>1.7</maven-build-helper-plugin.version>
@@ -52,6 +52,10 @@
                     <source>${target.jdk}</source>
                     <target>${target.jdk}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-Adebug</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -92,6 +96,9 @@
                     <modules>
                         <module>com.arcbees.hackers.AppModule</module>
                     </modules>
+                    <skip>
+                        true
+                    </skip>
                 </configuration>
                 <executions>
                     <execution>
